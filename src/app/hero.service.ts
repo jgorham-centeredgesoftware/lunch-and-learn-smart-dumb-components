@@ -31,14 +31,19 @@ export class HeroService {
       );
   }
 
+  getHeroAssociataions(id: number): Observable<Associate[]> {
+    return this.http.get<Associate[]>(`${this.associatesUrl}?source=${id}`)
+      .pipe(
+        catchError(this.handleError(`getHeroAssociataions id=${id}`, []))
+        )
+  }
+
   /** GET hero associates from the server */
   getHeroAssociates(id: number): Observable<Hero[]> {
-    let source = this.http.get<Associate[]>(`${this.associatesUrl}?source=${id}`);
-    let something = source.pipe(
+    return this.getHeroAssociataions(id).pipe(
       mergeMap(asso => forkJoin(...asso.map(a => this.getHero(a.target)))),
       catchError(this.handleError(`getHeroAssociates id=${id}`, []))
     )
-    return something;
   }
 
   /** GET hero by id. Return `undefined` when id not found */
